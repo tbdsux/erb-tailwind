@@ -1,4 +1,4 @@
-import { MemoryRouter as Router, Route, Switch } from 'react-router-dom';
+import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.css';
 import AppProvider from './providers/app';
@@ -18,9 +18,9 @@ export default function App() {
   return (
     <AppProvider>
       <Router>
-        <Switch>
-          <Route path="/" component={Hello} />
-        </Switch>
+        <Routes>
+          <Route path="/" element={Hello} />
+        </Routes>
       </Router>
     </AppProvider>
   );
