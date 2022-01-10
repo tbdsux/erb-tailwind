@@ -19,7 +19,7 @@ export default function App() {
     <AppProvider>
       <Router>
         <Routes>
-          <Route path="/" element={Hello} />
+          <Route path="/" element={<Hello />} />
         </Routes>
       </Router>
     </AppProvider>
