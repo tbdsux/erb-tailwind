@@ -18,6 +18,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const port = process.env.PORT || 1212;
 const manifest = path.resolve(webpackPaths.dllPath, 'renderer.json');
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const requiredByDLLConfig = module.parent!.filename.includes(
   'webpack.config.renderer.dev.dll'
 );
@@ -37,7 +38,7 @@ if (
   execSync('npm run postinstall');
 }
 
-export default merge(baseConfig, {
+const configuration: webpack.Configuration = {
   devtool: 'inline-source-map',
 
   mode: 'development',
@@ -172,15 +173,30 @@ export default merge(baseConfig, {
     historyApiFallback: {
       verbose: true,
     },
-    onBeforeSetupMiddleware() {
+    setupMiddlewares(middlewares) {
+      console.log('Starting preload.js builder...');
+      const preloadProcess = spawn('npm', ['run', 'start:preload'], {
+        shell: true,
+        stdio: 'inherit',
+      })
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        .on('close', (code: number) => process.exit(code!))
+        .on('error', (spawnError) => console.error(spawnError));
+
       console.log('Starting Main Process...');
       spawn('npm', ['run', 'start:main'], {
         shell: true,
-        env: process.env,
         stdio: 'inherit',
       })
-        .on('close', (code: number) => process.exit(code!))
+        .on('close', (code: number) => {
+          preloadProcess.kill();
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          process.exit(code!);
+        })
         .on('error', (spawnError) => console.error(spawnError));
+      return middlewares;
     },
   },
-});
+};
+
+export default merge(baseConfig, configuration);
